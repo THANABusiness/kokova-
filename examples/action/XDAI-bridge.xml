@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE action  [
+        <!ENTITY style SYSTEM "shared.css">
+        <!ENTITY xdai-bridge.en SYSTEM "xdai-bridge.en.js">
+]>
+<ts:card type="action" xmlns:ts="http://tokenscript.org/2020/06/tokenscript"
+          xmlns:ethereum="urn:ethereum:constantinople"
+          xmlns:xml="http://www.w3.org/XML/1998/namespace"
+          xsi:schemaLocation="http://tokenscript.org/2020/06/tokenscript http://tokenscript.org/2020/06/tokenscript.xsd"
+          name="convert-to-DAI"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+    <ts:label>
+        <ts:string xml:lang="en">Convert to DAI</ts:string>
+        <ts:string xml:lang="zh">將xDAI轉爲DAI</ts:string>
+    </ts:label>
+    <ts:attribute name="amount">
+        <ts:type><ts:syntax>1.3.6.1.4.1.1466.115.121.1.36</ts:syntax></ts:type>
+        <ts:label>
+            <ts:string xml:lang="en">Amount</ts:string>
+            <ts:string xml:lang="zh">代幣金額</ts:string>
+        </ts:label>
+        <ts:origins>
+            <!-- e18 is a hard coded multiplier.
+            rationale for hardcoding: avoiding over-design  -->
+            <ts:user-entry as="e18"/>
+        </ts:origins>
+    </ts:attribute>
+    <!-- because this action has xdai as input, it should be listed as
+         an action under XDAI's token view. -->
+    <ts:input>
+        <ts:token name="xdai">
+            <ts:ethereum network="100"/>
+        </ts:token>
+    </ts:input>
+    <!-- because this action has DAI as output, when a user decides to
+         create a new token, this action qallows DAI token to be chosen as
+         the new token to create -->
+    <ts:output>
+        <ts:token name="dai">
+            <ts:contract name="dai-erc20">
+                <ts:address network="1">0x6b175474e89094c44da98b954eedeac495271d0f</ts:address>
+            </ts:contract>
+        </ts:token>
+    </ts:output>
+    <!-- this selection prevents the user to use the action when
+         having little xdai balance.
+
+         This section is commented out since we don't know of
+         selection should be placed inside <action> - the alternative
+         design being that it is inside <token>. With this, it isn't
+         apparent that the filters are applicable to the input token:
+
+        <ts:selection name="low_balance" filter="!(balance>1000000000)">
+            <ts:denial>
+                <ts:string xml:lang="en">Not enough balance.</ts:string>
+            </ts:denial>
+        </ts:selection>
+
+         to make it work, first uncomment, then add
+         exclude="low_balance" to the root element.
+    -->
+    <ts:transaction>
+        <ethereum:transaction>
+            <ethereum:to>0x7301CFA0e1756B71869E93d4e4Dca5c7d0eb0AA6</ethereum:to>
+            <ethereum:value ref="amount"/>
+        </ethereum:transaction>
+    </ts:transaction>
+    <ts:view xml:lang="en" xmlns="http://www.w3.org/1999/xhtml">
+        <style type="text/css">&style;</style>
+        <script type="text/javascript">&xdai-bridge.en;</script>
+    </ts:view>
+</ts:card>
